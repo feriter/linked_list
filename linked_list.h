@@ -131,8 +131,8 @@ public:
     }
     // Move constructor
     linked_list(linked_list && other) {
-        this->clear();
         _end = other._end;
+        _size = other._size;
         other._end = nullptr;
     }
 
@@ -144,6 +144,9 @@ public:
 
     //
     linked_list & operator=(const linked_list & other) {
+        if (*this == other) {
+            return *this;
+        }
         this->clear();
         for (auto it : other) {
             push_back(it);
@@ -231,14 +234,9 @@ public:
     iterator erase(iterator begin, iterator end) {
         auto current = begin;
         while (current != end) {
-            if (current.element == _end) {
-                throw linked_list_exception("Trying to erase _end");
-            }
             current = this->erase(current);
         }
-        auto ret_node = end++;
-        this->erase(end);
-        return ret_node;
+        return end;
     }
     // Delete all occurrences of (value)
     int remove(const T & value) {
@@ -293,12 +291,12 @@ public:
         return *this;
     }
 
-    // External operators
-    friend bool operator!=(const linked_list<T> & left, const linked_list<T> & right);
-    friend bool operator==(const linked_list<T> & left, const linked_list<T> & right);
 };
 template <typename T>
 bool operator!=(const linked_list<T> & left, const linked_list<T> & right) {
+    if (left._size != right._size) {
+        return true;
+    }
     auto it1 = left.begin();
     auto it2 = right.begin();
     while (it1 != left.end() && it2 != right.end()) {
@@ -308,7 +306,7 @@ bool operator!=(const linked_list<T> & left, const linked_list<T> & right) {
         it1++;
         it2++;
     }
-    return (left.size() != right.size());
+    return false;
 }
 template <typename T>
 bool operator==(const linked_list<T> & left, const linked_list<T> & right) {
